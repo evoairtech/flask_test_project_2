@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Form Result</title>
+</head>
+<body>
+  <h1>Selected Genres</h1>
+  <ul>
+    {% for genre in selected_genres %}
+      <li>{{ genre }}</li>
+    {% endfor %}
+  </ul>
+  <a href="{{ url_for('index') }}">Go Back</a>
+</body>
+</html>

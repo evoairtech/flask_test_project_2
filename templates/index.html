@@ -1,11 +1,21 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Flask Test Project 2</title>
+  <meta charset="UTF-8">
+  <title>Genre Selection</title>
 </head>
 <body>
-    <h1>Welcome to Flask Test Project 2</h1>
-    <p>Flask is running successfully!</p>
+  <h1>Select Your Favorite Genres</h1>
+  <form method="POST" action="{{ url_for('index') }}">
+    {{ MGform.hidden_tag() }}
+    
+    {% for subfield in MGform.chosen_genres %}
+      <div>
+        {{ subfield }} {{ subfield.label.text }}
+      </div>
+    {% endfor %}
+    
+    {{ MGform.submit() }}
+  </form>
 </body>
 </html>
