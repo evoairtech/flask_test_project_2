@@ -1,10 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask_wtf import CSRFProtect
 from forms import GenresForm
-
+from movies_data import movies_list
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret'
+app.config['SECRET_KEY'] = 'supersecretkey'  # required for CSRF protection
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
 
 
 GENRES = [
@@ -44,7 +48,25 @@ def index():
 
     if request.method == 'POST':
         selected_ids = request.form.getlist('chosen_genres')
+        selected_genres = []
+        for genre in GENRES:
+            if str(genre['id']) in selected_ids:
+                selected_genres.append(genre['name'])
+        
+        # Store in session for the redirect
         session['selected_genres'] = selected_ids
+        
+        # If client requests JSON, return JSON response. Use a "contains" check
+        # because Accept headers can include multiple types (e.g. "application/json, */*").
+        accept = request.headers.get('Accept', '')
+        if 'application/json' in accept or request.is_json:
+            return jsonify({
+                "selected_ids": selected_ids,
+                "selected_genres": selected_genres,
+                "redirect_url": url_for('result')  # Include redirect URL in JSON
+            })
+        
+        # Otherwise redirect to results page
         return redirect(url_for('result'))
 
     return render_template('index.html', MGform=form)
@@ -57,9 +79,23 @@ def result():
     for genre in GENRES:
         if str(genre['id']) in selected_ids:
             selected_genres.append(genre['name'])
-    
+            
+    print("Selected genres:", selected_genres)
+
+    movie_results = []
+    for movie in movies_list:
+        # Normalize movie genres to a list to avoid accidental substring matches
+        movie_genres = movie.get('genre', [])
+        if isinstance(movie_genres, str):
+            movie_genres = [movie_genres]
+
+        if any(genre in movie_genres for genre in selected_genres):
+            movie_results.append(movie)
+            
+    print("Movie results:", movie_results)
+
     session.pop('selected_genres', None)
-    return render_template('results.html', selected_genres=selected_genres)
+    return render_template('results.html', selected_genres=selected_genres, movie_results=movie_results)
 
 
 

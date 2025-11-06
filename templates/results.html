@@ -11,6 +11,12 @@
       <li>{{ genre }}</li>
     {% endfor %}
   </ul>
+
+  <ul>
+    {% for movie in movie_results %}
+      <li>{{ movie.name }}</li>
+    {% endfor %}
+  </ul>
   <a href="{{ url_for('index') }}">Go Back</a>
 </body>
 </html>
