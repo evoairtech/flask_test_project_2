@@ -3,18 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <title>Genre Selection</title>
+  <!--
+    index.html
+    - Renders the genre selection form supplied as `MGform` by `app.index`.
+    - The form includes a hidden CSRF token (rendered by `MGform.hidden_tag()`)
+      provided by Flask-WTF.
+    - We iterate over `MGform.chosen_genres` to render each checkbox
+      individually so we can control layout and labels.
+  -->
 </head>
 <body>
   <h1>Select Your Favorite Genres</h1>
+  <!-- Form posts back to the index route which handles the POST and either
+       returns JSON (for API clients) or redirects to /result for normal
+       browser submissions. -->
   <form method="POST" action="{{ url_for('index') }}">
     {{ MGform.hidden_tag() }}
     
+    {# Loop over each checkbox subfield in the SelectMultipleField. Each
+       `subfield` renders the <input type="checkbox"> element; its label
+       text is available via `subfield.label.text`. #}
     {% for subfield in MGform.chosen_genres %}
       <div>
         {{ subfield }} {{ subfield.label.text }}
       </div>
     {% endfor %}
     
+    {# Render the submit button. #}
     {{ MGform.submit() }}
   </form>
 </body>

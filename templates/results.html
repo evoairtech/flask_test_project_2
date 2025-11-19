@@ -3,6 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>Form Result</title>
+  <!--
+    results.html
+    - Expects two context variables from the Flask view:
+        * selected_genres: list of human-readable genre names (e.g. ["Drama"]).
+        * movie_results: list of movie dicts that match the selected genres.
+    - The template displays the selected genres and then a list of
+      matching movies. Movie objects are dictionaries from `movies_list`.
+      In Jinja you can access dict keys with the dot-notation (movie.name).
+  -->
 </head>
 <body>
   <h1>Selected Genres</h1>
@@ -12,11 +21,15 @@
     {% endfor %}
   </ul>
 
+  <!-- Movie results: each `movie` is a dict from movies_list. The template
+       shows the movie's name here; you can expand to show year, score, etc. -->
   <ul>
     {% for movie in movie_results %}
       <li>{{ movie.name }}</li>
     {% endfor %}
   </ul>
+
+  {# Link back to the index page so the user can make another selection. #}
   <a href="{{ url_for('index') }}">Go Back</a>
 </body>
 </html>
