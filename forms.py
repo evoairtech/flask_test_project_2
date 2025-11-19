@@ -23,10 +23,6 @@ from wtforms.validators import DataRequired
 
 
 class GenresForm(FlaskForm):
-        chosen_genres = SelectMultipleField('Select Genres',
-                                    option_widget=CheckboxInput(),
-                                    widget=ListWidget(prefix_label=False))
-        submit = SubmitField('Submit')
         """Form for selecting one or more movie genres.
 
         Fields:
@@ -40,8 +36,8 @@ class GenresForm(FlaskForm):
         # whole field, but in the template we iterate through `chosen_genres`
         # subfields to render each checkbox individually.
         chosen_genres = SelectMultipleField('Select Genres',
-                                                                                option_widget=CheckboxInput(),
-                                                                                widget=ListWidget(prefix_label=False))
+                                            option_widget=CheckboxInput(),
+                                            widget=ListWidget(prefix_label=False))
 
         # Submit button used to POST the form.
         submit = SubmitField('Submit')

@@ -77,6 +77,8 @@ def index():
         choices_list.append(genre_tuple)
     form.chosen_genres.choices = choices_list   # Inject choices for theform (which are taken from the GENRES list) at runtime 
 
+    # Handle form submission. On POST, read selected values from
+    # `request.form.getlist` since multiple values are sent under the same field name.
     if request.method == 'POST':
         selected_ids = request.form.getlist('chosen_genres')
         selected_genres = []
@@ -84,7 +86,7 @@ def index():
             if str(genre['id']) in selected_ids:
                 selected_genres.append(genre['name'])
         
-        # Store in session for the redirect
+        # Store in session for the redirect to results page.
         session['selected_genres'] = selected_ids
         
         # If client requests JSON, return JSON response. Use a "contains" check
@@ -94,7 +96,7 @@ def index():
             return jsonify({
                 "selected_ids": selected_ids,
                 "selected_genres": selected_genres,
-                "redirect_url": url_for('result')  # Include redirect URL in JSON
+                "redirect_url": url_for('result')  # Include redirect URL in JSON response
             })
         
         # Otherwise redirect to results page

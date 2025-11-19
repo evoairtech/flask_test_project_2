@@ -23,6 +23,7 @@
     {# Loop over each checkbox subfield in the SelectMultipleField. Each
        `subfield` renders the <input type="checkbox"> element; its label
        text is available via `subfield.label.text`. #}
+       
     {% for subfield in MGform.chosen_genres %}
       <div>
         {{ subfield }} {{ subfield.label.text }}
@@ -32,5 +33,6 @@
     {# Render the submit button. #}
     {{ MGform.submit() }}
   </form>
+
 </body>
 </html>
