@@ -75,7 +75,7 @@ def index():
         genre_name = item['name']
         genre_tuple = (genre_id, genre_name)
         choices_list.append(genre_tuple)
-    form.chosen_genres.choices = choices_list   # Inject choices for theform (which are taken from the GENRES list) at runtime 
+    form.chosen_genres.choices = choices_list   # Inject choices for the form (which are taken from the GENRES list) at runtime 
 
     # Handle form submission. On POST, read selected values from
     # `request.form.getlist` since multiple values are sent under the same field name.
@@ -101,6 +101,7 @@ def index():
         
         # Otherwise redirect to results page
         return redirect(url_for('result'))
+
 
     return render_template('index.html', MGform=form)
 
@@ -130,6 +131,87 @@ def result():
     session.pop('selected_genres', None)
     return render_template('results.html', selected_genres=selected_genres, movie_results=movie_results)
 
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    """
+    Handle AJAX/JSON form submissions from the frontend.
+
+    Flow:
+    1. Frontend sends POST request with JSON containing selected genre IDs.
+    2. Server parses JSON, filters `movies_list` for movies with matching IDs.
+    3. Stores filtered movies in session for access by /api route.
+    4. Returns JSON response with success status, redirect URL, and movie count.
+
+    This ensures:
+    - No HTML is accidentally returned (avoids "Unexpected token '<'" in fetch).
+    - The session always contains the latest submitted movies for /api.
+    """
+
+    # 1️⃣ Ensure the request is JSON
+    if request.is_json:
+        # Parse JSON payload into Python dictionary
+        data = request.get_json() #request. pareses the JSON payload into a Python dictionary
+
+        # 2️⃣ Extract selected genre/movie IDs from JSON
+        # Frontend sends: { "chosen_genres": ["1", "3", "5"] }
+        selected_ids = data.get('chosen_genres', [])
+
+        # 3️⃣ Filter movies_list for movies matching selected IDs
+        # Convert movie['id'] to str to match string IDs from JSON
+        submitted_movies = [
+            movie for movie in movies_list
+            if str(movie['id']) in selected_ids
+        ]
+
+        # 4️⃣ Store filtered movies in session
+        # This allows /api route to access them later
+        session['submitted_movies'] = submitted_movies
+
+        # 5️⃣ Return JSON response to frontend
+        # Frontend can redirect to /api using redirect_url
+        return jsonify({
+            "status": "success",                     # Indicates submission worked
+            "redirect_url": url_for('api'),          # Frontend can navigate here
+            "submitted_count": len(submitted_movies) # Optional: number of movies found
+        })
+
+    # 6️⃣ Handle bad requests (not JSON)
+    # Returns HTTP 400 with descriptive error
+    return jsonify({"error": "Expected JSON"}), 400
+
+
+
+
+@app.route('/api', methods=['GET'])
+def api():
+    """
+    Display the list of movies submitted via the /submit route.
+
+    Flow:
+    1. Retrieves the last submitted movies from the session.
+    2. Prints them to the console for debugging purposes.
+    3. Renders 'api.html', passing the movie data for display.
+
+    Notes:
+    - `session.get('submitted_movies', [])` ensures that if the session
+      has no submitted movies, we get an empty list instead of None.
+    - This route is intended for viewing results after a JSON-based
+      form submission.
+    - The frontend can redirect here after receiving the JSON response
+      from /submit.
+    """
+    
+    # 1️⃣ Get the submitted movies from the session
+    # If no movies were submitted yet, default to an empty list
+    submitted_movies = session.get('submitted_movies', [])
+
+    # 2️⃣ Optional: print to console for debugging
+    print("Submitted movies:", submitted_movies)
+
+    # 3️⃣ Render template and pass movie_data for frontend
+    # In 'api.html', movie_data is converted to JSON for display
+    return render_template('api.html', movie_data=submitted_movies)
 
 
 if __name__ == '__main__':

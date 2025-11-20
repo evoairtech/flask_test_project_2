@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submitted Movies</title>
+</head>
+<body>
+    <h1>Submitted Movies</h1>
+    <pre>{{ movie_data | tojson(indent=2) }}</pre>
+    <a href="{{ url_for('index') }}">Back to Form</a>
+</body>
+</html>
